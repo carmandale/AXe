@@ -2,6 +2,8 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+> **Important**: See `Docs/AGENT_NOTES.md` for practical learnings and gotchas discovered during real-world usage, especially the critical difference between `tap` and `touch` commands.
+
 ## Project Overview
 
 AXe is a comprehensive CLI tool for interacting with iOS Simulators using Apple's Accessibility APIs and HID (Human Interface Device) functionality. It's built on top of Meta's idb frameworks and provides a clean, modern Swift interface for simulator automation.
