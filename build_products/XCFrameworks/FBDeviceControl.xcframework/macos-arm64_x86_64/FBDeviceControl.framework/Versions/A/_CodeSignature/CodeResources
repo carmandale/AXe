@@ -6,7 +6,7 @@
 	<dict>
 		<key>Resources/Info.plist</key>
 		<data>
-		nO/MPQNlqusvbKM/xsyOHAet36w=
+		3X889mZZobnvpL4Vl9NDI2DiZK4=
 		</data>
 	</dict>
 	<key>files2</key>
@@ -71,7 +71,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			Wo/lTEj/mO9A5CDefI3bUOHNJ9Ho767UIL8Fx643xFk=
+			DI8yDFdPGgbLYV8anztnMCw31J63El1X66Q526wfGB8=
 			</data>
 		</dict>
 		<key>Headers/FBDeviceControl.h</key>
@@ -169,14 +169,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			C1e8atNWc/BtC5L9+XyeWF1wrBLB0QdfcZWIynp6/SA=
+			/j+hcdehf3nNxy2PYhI5cY1D2sHmeMj8/kZDSMkG3Co=
 			</data>
 		</dict>
 		<key>Modules/FBDeviceControl.swiftmodule/Project/x86_64-apple-macos.swiftsourceinfo</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			oEaOVnN5AvS6GqoKjG2F8dPwsqHgqJsayIoBcqR7Qhc=
+			XH1gGMWvX50r00PXOyko4AStXnyaSE80of3fDbFgAjw=
 			</data>
 		</dict>
 		<key>Modules/FBDeviceControl.swiftmodule/arm64-apple-macos.abi.json</key>
@@ -190,28 +190,28 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			vu2+AcRVbObsWq0pg6FJ0rqPga+DBmmlUhXz/lRs3jE=
+			5wfcWwhhZC8pgIqO/WvR+UTr+p2ProFB4dk5jo8kPMo=
 			</data>
 		</dict>
 		<key>Modules/FBDeviceControl.swiftmodule/arm64-apple-macos.swiftdoc</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			Uu0TVRzfRq4aeGX4dgBOxMOxA5zcGWtZWAqd4eu5NEA=
+			Ejj8xj8zUdOdoGqE3FeFNxLwguF9XbNvKszEPrrGSx8=
 			</data>
 		</dict>
 		<key>Modules/FBDeviceControl.swiftmodule/arm64-apple-macos.swiftinterface</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			vu2+AcRVbObsWq0pg6FJ0rqPga+DBmmlUhXz/lRs3jE=
+			5wfcWwhhZC8pgIqO/WvR+UTr+p2ProFB4dk5jo8kPMo=
 			</data>
 		</dict>
 		<key>Modules/FBDeviceControl.swiftmodule/arm64-apple-macos.swiftmodule</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			yRGMKC7u4d/b8v0p5ZGnk0FkYyg9zJqeS5zsaHl8VsM=
+			KRxhkXgXvcVx7xWt9wHw3zlVdrkINNt9DJYbEg3eS3g=
 			</data>
 		</dict>
 		<key>Modules/FBDeviceControl.swiftmodule/x86_64-apple-macos.abi.json</key>
@@ -225,28 +225,28 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			ti66bMh60thtB4na2GXjbMpBwShYhJbq51ZKQ33wf/M=
+			9uiiuwE7dlJEHNIRDm9GWwgHEc4giNlaT0YhadR7v+o=
 			</data>
 		</dict>
 		<key>Modules/FBDeviceControl.swiftmodule/x86_64-apple-macos.swiftdoc</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			aues+RywYYP6J4WcmAcWocpIqm/HouNmSOErZuHOGhE=
+			pO6sn3GF4XuhUwmE7Lqwxrp94zulFhaRtq/Z8KYCWOo=
 			</data>
 		</dict>
 		<key>Modules/FBDeviceControl.swiftmodule/x86_64-apple-macos.swiftinterface</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			ti66bMh60thtB4na2GXjbMpBwShYhJbq51ZKQ33wf/M=
+			9uiiuwE7dlJEHNIRDm9GWwgHEc4giNlaT0YhadR7v+o=
 			</data>
 		</dict>
 		<key>Modules/FBDeviceControl.swiftmodule/x86_64-apple-macos.swiftmodule</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			7o9UIfXi2FHAPUc1nyW392hBM0FaNTaSivhgGUtK+7M=
+			s4FKxS7e52PkKVcZBXW6aleDADBzZ9Oho/OSsjVHaVM=
 			</data>
 		</dict>
 		<key>Modules/module.modulemap</key>
@@ -267,7 +267,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			LxlKn5J+TiWlCBVD7v1F6Xc7nfsBZyMACmGjoYjbUcs=
+			IosuY8lTargPvie/zYiNfAAvuowdqURKwe48yZleDFU=
 			</data>
 		</dict>
 	</dict>

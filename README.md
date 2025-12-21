@@ -25,6 +25,7 @@ AXe is a comprehensive CLI tool for interacting with iOS Simulators using Apple'
   - [**Hardware Buttons**](#hardware-buttons-1)
   - [**Keyboard Control**](#keyboard-control)
   - [**Video Streaming**](#video-streaming)
+  - [**Screenshot**](#screenshot)
   - [**Accessibility \& Info**](#accessibility--info)
 - [Architecture](#architecture)
   - [Why AXe?](#why-axe)
@@ -62,7 +63,8 @@ AXe provides complete iOS Simulator automation capabilities:
 - **Sequence Timing**: Custom delays between key sequences
 - **Complex Automation**: Multi-step workflows with precise timing
 
-### Video Streaming
+### Video & Screenshots
+- **Screenshot Capture**: Capture simulator display as PNG with automatic or custom filenames
 - **Screenshot-based Streaming**: Capture simulator video at 1-30 FPS
 - **Multiple Output Formats**: MJPEG, raw JPEG, ffmpeg-compatible, BGRA
 - **H.264 Recording**: Use the `record-video` command to write MP4 files with hardware-friendly encoding
@@ -123,9 +125,14 @@ UDID="B34FF305-5EA8-412B-943F-1D0371CA17FF"
 
 # Basic interactions
 axe tap -x 100 -y 200 --udid $UDID
+axe tap --id "Safari" --udid $UDID
+axe tap --label "Safari" --udid $UDID
 axe type 'Hello World!' --udid $UDID
 axe swipe --start-x 100 --start-y 300 --end-x 300 --end-y 100 --udid $UDID
 axe button home --udid $UDID
+
+# Screenshot
+axe screenshot --udid $UDID
 
 # Gesture presets
 axe gesture scroll-up --udid $UDID
@@ -144,6 +151,10 @@ axe gesture scroll-down --pre-delay 0.5 --post-delay 1.0 --udid $UDID
 # Tap at coordinates
 axe tap -x 100 -y 200 --udid SIMULATOR_UDID
 axe tap -x 100 -y 200 --pre-delay 1.0 --post-delay 0.5 --udid SIMULATOR_UDID
+
+# Tap by accessibility element (uses describe-ui accessibility tree)
+axe tap --id "Safari" --udid SIMULATOR_UDID
+axe tap --label "Safari" --udid SIMULATOR_UDID
 
 # Swipe gestures
 axe swipe --start-x 100 --start-y 300 --end-x 300 --end-y 100 --udid SIMULATOR_UDID
@@ -246,6 +257,22 @@ axe record-video --udid SIMULATOR_UDID --fps 10 --quality 60 --scale 0.5 --outpu
 
 > [!TIP]
 > Press `Ctrl+C` to stop recording. AXe finalises the MP4 before exiting and prints the file path to stdout.
+
+### **Screenshot**
+
+```bash
+# Capture screenshot with auto-generated filename
+axe screenshot --udid SIMULATOR_UDID
+
+# Save to specific file
+axe screenshot --output ~/Desktop/my-screenshot.png --udid SIMULATOR_UDID
+
+# Save to directory (auto-generates timestamped filename)
+axe screenshot --output ~/Desktop/ --udid SIMULATOR_UDID
+```
+
+> [!TIP]
+> The screenshot path is printed to stdout for easy scripting. Progress messages go to stderr.
 
 ### **Accessibility & Info**
 
