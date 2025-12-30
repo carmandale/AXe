@@ -100,6 +100,7 @@ struct Tap: AsyncParsableCommand {
         logger.info().log("Tapping at \(resolvedDescription)")
         
         // Create tap events with timing controls
+        // Use touch down/delay/touch up pattern for reliability (atomic tapAt is unreliable)
         var events: [FBSimulatorHIDEvent] = []
         
         // Add pre-delay if specified
@@ -108,9 +109,14 @@ struct Tap: AsyncParsableCommand {
             events.append(FBSimulatorHIDEvent.delay(preDelay))
         }
         
-        // Add the main tap event
-        let tapEvent = FBSimulatorHIDEvent.tapAt(x: resolvedPoint.x, y: resolvedPoint.y)
-        events.append(tapEvent)
+        // Touch down
+        events.append(FBSimulatorHIDEvent.touchDownAt(x: resolvedPoint.x, y: resolvedPoint.y))
+        
+        // 100ms delay between down and up (matches Touch.swift default, improves reliability)
+        events.append(FBSimulatorHIDEvent.delay(0.1))
+        
+        // Touch up
+        events.append(FBSimulatorHIDEvent.touchUpAt(x: resolvedPoint.x, y: resolvedPoint.y))
         
         // Add post-delay if specified
         if let postDelay = postDelay, postDelay > 0 {
