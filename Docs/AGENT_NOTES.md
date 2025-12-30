@@ -6,44 +6,44 @@ This document captures learnings and best practices discovered while using AXe f
 
 ```bash
 # Build
-swift build
+swift build -c release
 
 # List simulators (find booted ones)
-swift run axe list-simulators | grep Booted
+.build/release/axe list-simulators | grep Booted
 
 # Describe UI hierarchy
-swift run axe describe-ui --udid <SIMULATOR_UDID>
+axe describe-ui --udid <SIMULATOR_UDID>
 
-# Interact with elements
-swift run axe tap -x <X> -y <Y> --udid <SIMULATOR_UDID>
-swift run axe touch -x <X> -y <Y> --down --up --delay 0.1 --udid <SIMULATOR_UDID>
+# Tap by coordinates
+axe tap -x <X> -y <Y> --udid <SIMULATOR_UDID>
+
+# Tap by accessibility label (preferred)
+axe tap --label "Scan Devices" --udid <SIMULATOR_UDID>
 ```
 
-## Critical Finding: `tap` vs `touch` Commands
+## Tap Command (Reliable as of 2024-12-29)
 
-### Problem
-The `tap` command may report success but fail to actually trigger UI interactions (especially toggles/switches) on some simulators.
-
-### Solution
-Use the `touch` command with explicit `--down --up` flags and a small delay:
+The `tap` command now uses a reliable touch down/delay/touch up pattern internally:
 
 ```bash
-# This may NOT work reliably:
-swift run axe tap -x 883 -y 56 --udid <UDID>
+# Tap by coordinates
+axe tap -x 883 -y 56 --udid <UDID>
 
-# This WORKS reliably:
-swift run axe touch -x 883 -y 56 --down --up --delay 0.1 --udid <UDID>
+# Tap by accessibility label (preferred - finds element and taps center)
+axe tap --label "Scan Devices" --udid <UDID>
+axe tap --id "myAccessibilityIdentifier" --udid <UDID>
 ```
 
-### Why This Matters
-- The `tap` command uses `FBSimulatorHIDEvent.tapAt(x:y:)` which combines down+up in one event
-- The `touch` command with `--delay` provides explicit timing control between touch down and touch up
-- Some UI elements (especially SwiftUI Toggle/Switch) seem to require this explicit timing
+### Implementation Details
+- Uses `touchDownAt` → 100ms delay → `touchUpAt` pattern
+- This replaced the atomic `tapAt()` which was unreliable (~30% success)
+- The `touch` command is still available for advanced use cases
 
-### Recommended Approach
-1. **First try**: Use `tap` for simple interactions
-2. **If `tap` fails**: Switch to `touch --down --up --delay 0.1`
-3. **For critical automation**: Default to `touch` with delay for reliability
+### Optional Timing Controls
+```bash
+axe tap --label "Button" --pre-delay 0.5 --udid <UDID>   # Wait before tap
+axe tap --label "Button" --post-delay 0.5 --udid <UDID>  # Wait after tap
+```
 
 ## Calculating Tap Coordinates
 
@@ -121,12 +121,13 @@ This warning about duplicate class implementations is cosmetic and doesn't affec
 
 | Date | Simulator | iOS Version | Working Commands |
 |------|-----------|-------------|------------------|
-| 2024-12-14 | iPad Pro 13-inch (M5) | iOS 26.1 | `touch --down --up --delay 0.1` ✅, `tap` ❌ (unreliable) |
+| 2024-12-29 | iPad Pro 13-inch (M5) | iOS 26.1 | `tap` ✅, `tap --label` ✅, `touch` ✅ |
+| 2024-12-29 | Apple Vision Pro | visionOS | `tap` ❌ (broken frames), `screenshot` ✅ |
 
 ## Tips for Future Agents
 
-1. **Always verify interactions** - Run `describe-ui` before and after to confirm state changes
-2. **Prefer `touch` over `tap`** - More reliable for critical interactions
-3. **Check simulator is booted** - Commands will fail on shutdown simulators
-4. **Use delays for sequences** - Add `--pre-delay` or `--post-delay` when chaining commands
-5. **Parse JSON carefully** - Output includes build logs; filter them out before parsing
+1. **Use `tap --label` when possible** - Finds element by accessibility label, taps center
+2. **Check simulator is booted** - Commands will fail on shutdown simulators
+3. **Use delays for sequences** - Add `--pre-delay` or `--post-delay` when chaining commands
+4. **Parse JSON carefully** - Output includes build logs; filter them out with `2>/dev/null`
+5. **visionOS has broken tap** - Use manual testing for Pfizer/GMP apps
