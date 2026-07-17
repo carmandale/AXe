@@ -17,10 +17,11 @@ struct AccessibilityFetcher {
     static func fetchAccessibilityInfoJSONData(
         for simulatorUDID: String,
         point: AccessibilityPoint? = nil,
+        pid: Int32? = nil,
         logger: AxeLogger
     ) async throws -> Data {
         let simulatorSet = try await getSimulatorSet(deviceSetPath: nil, logger: logger, reporter: EmptyEventReporter.shared)
-        
+
         guard let target = simulatorSet.allSimulators.first(where: { $0.udid == simulatorUDID }) else {
             throw CLIError(errorDescription: "Simulator with UDID \(simulatorUDID) not found in set.")
         }
@@ -29,6 +30,8 @@ struct AccessibilityFetcher {
         let accessibilityInfoFuture: FBFuture<AnyObject>
         if let point {
             accessibilityInfoFuture = target.accessibilityElement(at: point.cgPoint, nestedFormat: true)
+        } else if let pid {
+            accessibilityInfoFuture = target.accessibilityElements(forPid: pid, nestedFormat: true)
         } else {
             accessibilityInfoFuture = target.accessibilityElements(withNestedFormat: true)
         }

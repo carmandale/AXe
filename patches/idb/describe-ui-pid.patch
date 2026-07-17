@@ -1,0 +1,133 @@
+diff --git a/FBControlCore/Commands/FBAccessibilityCommands.h b/FBControlCore/Commands/FBAccessibilityCommands.h
+index ffa02b0fc..f105e9872 100644
+--- a/FBControlCore/Commands/FBAccessibilityCommands.h
++++ b/FBControlCore/Commands/FBAccessibilityCommands.h
+@@ -37,6 +37,18 @@ NS_ASSUME_NONNULL_BEGIN
+  */
+ - (FBFuture<id> *)accessibilityElementAtPoint:(CGPoint)point nestedFormat:(BOOL)nestedFormat;
+ 
++/**
++ Obtain the accessibility elements for the application owning the given process identifier.
++ Unlike -accessibilityElementsWithNestedFormat: the traversal is rooted at that application
++ instead of the frontmost application.
++ The returned value is fully JSON serializable.
++
++ @param pid the process identifier of the application to describe.
++ @param nestedFormat if YES then data is returned in the nested format, NO for flat format
++ @return the accessibility elements for the application, wrapped in a Future.
++ */
++- (FBFuture<id> *)accessibilityElementsForPid:(pid_t)pid nestedFormat:(BOOL)nestedFormat;
++
+ @end
+ 
+ 
+diff --git a/FBSimulatorControl/Commands/FBSimulatorAccessibilityCommands.m b/FBSimulatorControl/Commands/FBSimulatorAccessibilityCommands.m
+index f7764404e..34a387b2a 100644
+--- a/FBSimulatorControl/Commands/FBSimulatorAccessibilityCommands.m
++++ b/FBSimulatorControl/Commands/FBSimulatorAccessibilityCommands.m
+@@ -206,6 +206,13 @@ static const unsigned long long FBSimulatorAccessibilityXCTestClientType = 2;
+   return [self.bridge accessibilityElementAtPoint:point];
+ }
+ 
++- (FBFuture<id> *)accessibilityElementsForPid:(pid_t)pid nestedFormat:(BOOL)nestedFormat
++{
++  return [[FBControlCoreError
++    describe:@"Per-pid accessibility fetches are not supported for SimulatorBridge based accessibility"]
++    failFuture];
++}
++
+ @end
+ 
+ @interface FBSimulator_TranslationRequest : NSObject
+@@ -273,6 +280,58 @@ static const unsigned long long FBSimulatorAccessibilityXCTestClientType = 2;
+ 
+ @end
+ 
++@interface FBSimulator_TranslationRequest_ApplicationForPid : FBSimulator_TranslationRequest
++
++@property (nonatomic, assign, readonly) pid_t pid;
++
++@end
++
++@implementation FBSimulator_TranslationRequest_ApplicationForPid
++
++- (instancetype)initWithNestedFormat:(BOOL)nestedFormat pid:(pid_t)pid
++{
++  self = [super initWithNestedFormat:nestedFormat];
++  if (!self) {
++    return nil;
++  }
++
++  _pid = pid;
++
++  return self;
++}
++
++- (AXPTranslationObject *)performWithTranslator:(AXPTranslator *)translator
++{
++  // AXPTranslator.h is a class-dump, not SDK truth: guard the per-pid selectors at runtime.
++  // NSLog diagnostics go to stderr so CLI probes record which selector was available and used.
++  BOOL respondsToPid = [translator respondsToSelector:@selector(translationApplicationObjectForPid:)];
++  BOOL respondsToPidNumber = [translator respondsToSelector:@selector(_translationApplicationObjectForPidNumber:)];
++  NSLog(@"ApplicationForPid request: pid=%d respondsTo translationApplicationObjectForPid:=%d _translationApplicationObjectForPidNumber:=%d", self.pid, respondsToPid, respondsToPidNumber);
++  AXPTranslationObject *translation = nil;
++  if (respondsToPid) {
++    translation = [translator translationApplicationObjectForPid:self.pid];
++    NSLog(@"ApplicationForPid request: translationApplicationObjectForPid: returned %@", translation);
++  }
++  if (translation == nil && respondsToPidNumber) {
++    translation = [translator _translationApplicationObjectForPidNumber:@(self.pid)];
++    NSLog(@"ApplicationForPid request: _translationApplicationObjectForPidNumber: returned %@", translation);
++  }
++  // The bridgeDelegateToken is set post-hoc by the dispatcher, exactly as for the frontmost path.
++  return translation;
++}
++
++- (id)serialize:(AXPMacPlatformElement *)element
++{
++  return [FBSimulatorAccessibilitySerializer recursiveDescriptionFromElement:element token:self.token nestedFormat:self.nestedFormat];
++}
++
++- (instancetype)cloneWithNewToken
++{
++  return [[FBSimulator_TranslationRequest_ApplicationForPid alloc] initWithNestedFormat:self.nestedFormat pid:self.pid];
++}
++
++@end
++
+ @interface FBSimulator_TranslationRequest_Point : FBSimulator_TranslationRequest
+ 
+ @property (nonatomic, assign, readonly) CGPoint point;
+@@ -478,6 +537,16 @@ static const unsigned long long FBSimulatorAccessibilityXCTestClientType = 2;
+   return [FBSimulatorAccessibilityCommands_CoreSimulator accessibilityElementWithTranslationRequest:translationRequest simulator:self.simulator remediationPermitted:NO];
+ }
+ 
++- (FBFuture<id> *)accessibilityElementsForPid:(pid_t)pid nestedFormat:(BOOL)nestedFormat
++{
++  FBSimulator_TranslationRequest *translationRequest = [[FBSimulator_TranslationRequest_ApplicationForPid alloc] initWithNestedFormat:nestedFormat pid:pid];
++  // remediationPermitted:NO — the SpringBoard remediation heuristic (remediationRequiredForSimulator:)
++  // assumes the FRONTMOST application was requested: a zero accessibilityFrame plus a dead translation
++  // pid is read as a crashed SpringBoard and restarts CoreSimulatorBridge. A per-pid request for a
++  // backgrounded or invalid pid could trip that heuristic spuriously, so remediation must not fire here.
++  return [FBSimulatorAccessibilityCommands_CoreSimulator accessibilityElementWithTranslationRequest:translationRequest simulator:self.simulator remediationPermitted:NO];
++}
++
+ #pragma mark Private
+ 
+ + (FBFuture<id> *)accessibilityElementWithTranslationRequest:(FBSimulator_TranslationRequest *)request simulator:(FBSimulator *)simulator remediationPermitted:(BOOL)remediationPermitted
+@@ -607,6 +676,15 @@ static NSString *const CoreSimulatorBridgeServiceName = @"com.apple.CoreSimulato
+     }];
+ }
+ 
++- (FBFuture<id> *)accessibilityElementsForPid:(pid_t)pid nestedFormat:(BOOL)nestedFormat
++{
++  return [[self
++    implementationWithNestedFormat:nestedFormat]
++    onQueue:self.simulator.asyncQueue fmap:^(id<FBAccessibilityOperations> implementation) {
++      return [implementation accessibilityElementsForPid:pid nestedFormat:nestedFormat];
++    }];
++}
++
+ #pragma mark Private
+ 
+ - (FBFuture<id<FBAccessibilityOperations>> *)implementationWithNestedFormat:(BOOL)nestedFormat

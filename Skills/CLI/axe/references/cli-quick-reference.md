@@ -201,8 +201,9 @@ See `batch-reference.md` for full batch semantics.
 ## Accessibility / UI inspection
 
 ```bash
-axe describe-ui --udid <UDID>                      # Full screen
+axe describe-ui --udid <UDID>                      # Full screen (frontmost application)
 axe describe-ui --point 100,200 --udid <UDID>      # Specific point
+axe describe-ui --pid 12345 --udid <UDID>          # Specific application by process id
 ```
 
 ## Screenshot

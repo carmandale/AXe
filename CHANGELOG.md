@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Added `describe-ui --pid <pid>` to root the accessibility traversal at the application owning the given process id instead of the frontmost application. This allows describing app trees on headless visionOS simulators where the frontmost application resolves to the SurfBoard shell. `--pid` cannot be combined with `--point`.
+
 ### Fixed
 
 - Fixed SimulatorKit loading with Xcode 27 beta by checking Xcode's `Contents/SharedFrameworks` layout before falling back to the legacy private-framework path.

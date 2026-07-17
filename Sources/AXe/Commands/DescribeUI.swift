@@ -18,8 +18,23 @@ struct DescribeUI: AsyncParsableCommand {
     )
     var point: String?
 
+    @Option(
+        name: .customLong("pid"),
+        help: ArgumentHelp(
+            "Describe the accessibility hierarchy of the application owning this process id instead of the frontmost application.",
+            valueName: "pid"
+        )
+    )
+    var pid: Int32?
+
     func validate() throws {
         _ = try parsedPoint()
+        if pid != nil, point != nil {
+            throw ValidationError("--pid and --point cannot be combined.")
+        }
+        if let pid, pid <= 0 {
+            throw ValidationError("--pid must be a positive process id.")
+        }
     }
 
     func run() async throws {
@@ -29,6 +44,7 @@ struct DescribeUI: AsyncParsableCommand {
         let jsonData = try await AccessibilityFetcher.fetchAccessibilityInfoJSONData(
             for: simulatorUDID,
             point: try parsedPoint(),
+            pid: pid,
             logger: logger
         )
         guard let jsonString = String(data: jsonData, encoding: .utf8) else {

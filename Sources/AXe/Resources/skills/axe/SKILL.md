@@ -6,7 +6,7 @@ description: Provides agent-ready AXe CLI usage guidance for iOS Simulator autom
 ## Step 1: Confirm runtime context
 1. Identify simulator UDID target first (`axe list-simulators`).
 2. Simulator-interaction AXe commands require `--udid <UDID>`. Commands like `list-simulators` and `init` do not.
-3. Run `axe describe-ui --udid <UDID>` to inspect the full current screen. Use `axe describe-ui --point <X,Y> --udid <UDID>` to inspect the element at a specific coordinate. Use the output to discover available `--id` and `--label` values for selector taps and slider setting, and to confirm coordinates for coordinate-based taps.
+3. Run `axe describe-ui --udid <UDID>` to inspect the full current screen. Use `axe describe-ui --point <X,Y> --udid <UDID>` to inspect the element at a specific coordinate. Use `axe describe-ui --pid <PID> --udid <UDID>` to root the traversal at a specific application process instead of the frontmost application (useful on headless visionOS simulators where frontmost resolves to the shell; `--pid` cannot be combined with `--point`). Use the output to discover available `--id` and `--label` values for selector taps and slider setting, and to confirm coordinates for coordinate-based taps.
 4. Prefer selectors (`tap --id` / `tap --label`, `slider --id` / `slider --label`) over raw coordinates. Selectors are resilient to layout changes, work across device sizes, and support element waiting where documented. For UIKit `UISwitch` and SwiftUI `Toggle` rows, selector taps activate the contained switch/toggle when the match contains exactly one such control. Default tap style is `automatic`: switches/toggles use physical touch down/up, while normal taps use simulator `tapAt`.
 
 ## Step 2: Choose the right command
@@ -26,6 +26,7 @@ axe tap -x <X> -y <Y> --udid <UDID>
 axe type 'text' --udid <UDID>
 axe describe-ui --udid <UDID>
 axe describe-ui --point <X,Y> --udid <UDID>
+axe describe-ui --pid <PID> --udid <UDID>
 axe screenshot --udid <UDID> --output screenshot.png
 ```
 
